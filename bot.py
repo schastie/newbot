@@ -1,45 +1,71 @@
-import requests
+import requests  
 import datetime
 
-#Установка адреса бота
-url = https://api.telegram.org/bot588205910:AAFYC9NrYLh3VH5DSdTIcu5u0Y9YxFRKbZY
-#Поиск последнего сообщения из массива чата с пользователем Telegram.
+class BotHandler:
 
-def lastUpdate(dataEnd):
-   res = dataEnd['result']
-   totalUpdates = len(res) - 1
-   return res[totalUpdates]
+    def __init__(self, token):
+        self.token = token
+        self.api_url = "https://api.telegram.org/bot588205910:AAFYC9NrYLh3VH5DSdTIcu5u0Y9YxFRKbZY/".format(token)
 
-#Получение идентификатора чата Telegram
-def getChatID(update):
-   chatID = update['message']['chat']['id']
-   return chatID
+    def get_updates(self, offset=None, timeout=30):
+        method = 'getUpdates'
+        params = {'timeout': timeout, 'offset': offset}
+        resp = requests.get(self.api_url + method, params)
+        result_json = resp.json()['result']
+        return result_json
 
-#отправка запроса sendMessage боту
-def sendResp(chat, value):
-   settings = {'chat_id': chat, 'text': value}
-   resp = requests.post(url + 'sendMessage', data=settings)
-   return resp
+    def send_message(self, chat_id, text):
+        params = {'chat_id': chat_id, 'text': text}
+        method = 'sendMessage'
+        resp = requests.post(self.api_url + method, params)
+        return resp
 
-#Get-запрос на обновление информации к боту. Результат – строка json. Метод .json позволяет развернуть ее в массив
-def getUpdatesJson(request):
-   settings = {'timeout': 100, 'offset': None}
-   response = requests.get(request + 'getUpdates', data=settings)
-   return response.json()
+    def get_last_update(self):
+        get_result = self.get_updates()
 
-#Главная функция
-def main():
-   chatID = getChatID(lastUpdate(getUpdatesJson(url)))
-   sendResp(chatID, 'Ваше сообщение')
-   updateID = lastUpdate(getUpdatesJson(url))['update_id']
+        if len(get_result) > 0:
+            last_update = get_result[-1]
+        else:
+            last_update = get_result[len(get_result)]
 
-#Бесконечный цикл, который отправляет запросы боту на получение обновлений
-  while True:
-#Если обновление есть, отправляем сообщение
-  if updateID == lastUpdate(getUpdatesJson(url))['update_id']:
-        sendResp(getChatID(lastUpdate(getUpdatesJson(url))), 'проба')
-        updateID += 1
-        sleep(1)
-  #Запуск главной функции
-  if __name__ == '__main__':
+        return last_update
+
+greet_bot = BotHandler(token)  
+greetings = ('hello', 'hi', 'greetings', 'sup')  
+now = datetime.datetime.now()
+
+
+def main():  
+    new_offset = None
+    today = now.day
+    hour = now.hour
+
+    while True:
+        greet_bot.get_updates(new_offset)
+
+        last_update = greet_bot.get_last_update()
+
+        last_update_id = last_update['update_id']
+        last_chat_text = last_update['message']['text']
+        last_chat_id = last_update['message']['chat']['id']
+        last_chat_name = last_update['message']['chat']['first_name']
+
+        if last_chat_text.lower() in greetings and today == now.day and 6 <= hour < 12:
+            greet_bot.send_message(last_chat_id, 'Good Morning  {}'.format(last_chat_name))
+            today += 1
+
+        elif last_chat_text.lower() in greetings and today == now.day and 12 <= hour < 17:
+            greet_bot.send_message(last_chat_id, 'Good Afternoon {}'.format(last_chat_name))
+            today += 1
+
+        elif last_chat_text.lower() in greetings and today == now.day and 17 <= hour < 23:
+            greet_bot.send_message(last_chat_id, 'Good Evening  {}'.format(last_chat_name))
+            today += 1
+
+        new_offset = last_update_id + 1
+
+if __name__ == '__main__':  
+    try:
         main()
+    except KeyboardInterrupt:
+        exit()
