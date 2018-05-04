@@ -1,6 +1,4 @@
 apsw==3.8.6.post1
-BeautifulSoup==3.2.1
-beautifulsoup4==4.3.2
 certifi==2018.4.16
 characteristic==0.1.0
 chardet==3.0.4
