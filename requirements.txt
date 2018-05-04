@@ -1,9 +1,5 @@
-apsw==3.8.6.post1
-certifi==2018.4.16
-characteristic==0.1.0
 chardet==3.0.4
 CherryPy==3.5.0
-colorama==0.3.2
 
 numpy==1.8.2
 
