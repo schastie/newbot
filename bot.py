@@ -3,9 +3,6 @@ import requests
 import time
 import urllib
 
-import config
-
-
 TOKEN = "588205910:AAFYC9NrYLh3VH5DSdTIcu5u0Y9YxFRKbZY"
 URL = "https://api.telegram.org/bot588205910:AAFYC9NrYLh3VH5DSdTIcu5u0Y9YxFRKbZY"
 
