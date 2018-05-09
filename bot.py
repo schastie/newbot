@@ -14,7 +14,6 @@ if __name__ == '__main__':
      con = sqlite3.connect('input.sqlite')
      cur.execute("select x from Table limit 1")
      for row in cur:
-        print row
         mestext = row;
      con.close()
         
